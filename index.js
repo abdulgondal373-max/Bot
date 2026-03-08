@@ -90,9 +90,9 @@ client.on('messageCreate', async (message) => {
         }
 
         // 3. Envoi du lien automatique (si pas bloqué)
-        await message.author.send(`Lien du site ➡️ {LIEN_SITE}
-Lien de secours telegram ➡️ {LIEN_TELEGRAM}`);
-    }
+        await message.author.send(`Lien du site ➡️ ${LIEN_SITE}
+Lien de secours telegram ➡️ ${LIEN_TELEGRAM}`);
+
 });
 
 client.login(process.env.TOKEN);
