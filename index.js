@@ -8,7 +8,7 @@ app.listen(port);
 
 const MON_ID = "744871541715632138"; 
 const LIEN_TELEGRAM = "https://t.me/+utGMq_cWFRplMTI0";
-
+const LIEN_SITE = "https://akhtv.online";
 // Liste des IDs bloqués (elle se vide si le bot redémarre)
 let blacklist = new Set();
 
@@ -90,7 +90,8 @@ client.on('messageCreate', async (message) => {
         }
 
         // 3. Envoi du lien automatique (si pas bloqué)
-        await message.author.send(`Salut, tiens le lien pour les matchs ➡️ ${LIEN_TELEGRAM}`);
+        await message.author.send(`Lien du site ➡️ {LIEN_SITE}
+Lien de secours telegram ➡️ {LIEN_TELEGRAM}`);
     }
 });
 
