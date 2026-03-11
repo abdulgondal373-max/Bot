@@ -103,8 +103,19 @@ client.on('messageCreate', async (message) => {
 
         // 3. Envoi de la réponse automatique avec les liens (CORRIGÉ)
         try {
-            await message.author.send(`Lien du site ➡️ ${LIEN_SITE}
-Lien de secours telegram ➡️ ${LIEN_TELEGRAM}`);
+            const messageAffiche = `**AKH TV — TON STREAMING ICI** ⚡
+
+🌐 **Site Officiel :** https://akhtv.online
+
+📢 **Rejoindre la communauté :**
+* **Telegram (Secours) :** https://t.me/+utGMq_cWFRplMTI0
+* **Twitter (News) :** https://x.com/abdul_37300?s=21
+
+🏁 *Ne rate aucun match !*`;
+
+// Exemple pour l'envoyer dans un salon :
+message.channel.send(messageAffiche);
+
         } catch (e) {
             console.log(`Impossible de répondre à ${message.author.tag} (DMs fermés)`);
         }
