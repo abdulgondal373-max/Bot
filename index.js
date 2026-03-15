@@ -108,7 +108,7 @@ client.on('messageCreate', async (message) => {
 🌐 **Site Officiel :** https://akhtv.online
 
 📢 **Rejoindre la communauté :**
-* **Telegram (Secours) :** https://t.me/+utGMq_cWFRplMTI0
+* **Telegram (Secours) :** https://t.me/+5HpqbYj2l4kzMDQ8
 * **Twitter (News) :** https://x.com/abdul_37300?s=21
 
 🏁 *Ne rate aucun match !*`;
