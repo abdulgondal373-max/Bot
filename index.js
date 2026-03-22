@@ -103,15 +103,23 @@ client.on('messageCreate', async (message) => {
 
         // 3. Envoi de la réponse automatique avec les liens (CORRIGÉ)
         try {
-            const messageAffiche = `**AKH TV — TON STREAMING ICI** ⚡
+    const messageAffiche = `**AKH TV — TON STREAMING ICI** ⚡
 
 🌐 **Site Officiel :** https://akhtv.online
 
+📖 **Besoin d'aide ?**
+Retrouve le **Tuto** ici 👉 <#1482820441478529186>
+
 📢 **Rejoindre la communauté :**
-* **Discord (Secours) :** https://discord.gg/z3cRwbAYdQ
+* **Discord (Secours) :** https://discord.gg/myCjNzea8U
 * **Twitter (News) :** https://x.com/abdul_37300?s=21
 
 🏁 *Ne rate aucun match !*`;
+
+    await message.author.send(messageAffiche);
+} catch (e) {
+    console.error("Impossible d'envoyer le message privé :", e);
+}
 
 // Exemple pour l'envoyer dans un salon :
 message.channel.send(messageAffiche);
