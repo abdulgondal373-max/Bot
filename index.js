@@ -1,14 +1,14 @@
 const { Client, GatewayIntentBits, Partials, ActivityType } = require('discord.js');
 const express = require('express');
 
-// --- SERVEUR WEB (Pour Render) ---
+// --- SERVEUR WEB (Pour Render / Koyeb) ---
 const app = express();
 const port = process.env.PORT || 10000;
 app.get('/', (req, res) => res.send('AKH Surveillance + Anti-Spam Actif'));
 app.listen(port, () => console.log(`Serveur Web sur le port ${port}`));
 
 // --- CONFIGURATION ---
-const MON_ID = "744871541715632138"; 
+const MON_ID = "744871541715632138"; // Ton ID
 const LIEN_TELEGRAM = "https://t.me/+utGMq_cWFRplMTI0";
 const LIEN_SITE = "https://akhtv.online";
 
@@ -101,9 +101,9 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        // 3. Envoi de la réponse automatique avec les liens (CORRIGÉ)
+        // 3. Envoi de la réponse automatique
         try {
-    const messageAffiche = `**AKH TV — TON STREAMING ICI** ⚡
+            const messageAffiche = `**AKH TV — TON STREAMING ICI** ⚡
 
 🌐 **Site Officiel :** https://akhtv.online
 
@@ -116,14 +116,7 @@ Retrouve le **Tuto** ici 👉 <#1482820441478529186>
 
 🏁 *Ne rate aucun match !*`;
 
-    await message.author.send(messageAffiche);
-} catch (e) {
-    console.error("Impossible d'envoyer le message privé :", e);
-}
-
-// Exemple pour l'envoyer dans un salon :
-message.channel.send(messageAffiche);
-
+            await message.author.send(messageAffiche);
         } catch (e) {
             console.log(`Impossible de répondre à ${message.author.tag} (DMs fermés)`);
         }
