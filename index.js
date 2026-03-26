@@ -9,8 +9,7 @@ app.listen(port, () => console.log(`Serveur Web sur le port ${port}`));
 
 // --- CONFIGURATION ---
 const MON_ID = "744871541715632138"; // Ton ID
-const LIEN_TELEGRAM = "https://t.me/+utGMq_cWFRplMTI0";
-const LIEN_SITE = "https://akhtv.online";
+const ID_SALON_CONFIG = "1486834918054035646"; // Salon où tu écris le message auto
 
 let blacklist = new Set();
 
@@ -65,17 +64,14 @@ client.on('messageCreate', async (message) => {
             const attachments = message.attachments.map(a => a.url);
 
             try {
-                // On cherche si c'est un salon ou un utilisateur
                 const cible = await client.channels.fetch(cibleId).catch(() => client.users.fetch(cibleId));
                 
-                // Si le 2ème argument est un ID de message, on répond à ce message
                 if (secondArg && /^\d{17,20}$/.test(secondArg)) {
                     const texte = args.slice(3).join(' ');
                     const msgCible = await cible.messages.fetch(secondArg);
                     await msgCible.reply({ content: texte || null, files: attachments });
                     await message.reply("✅ Réponse envoyée");
                 } else {
-                    // Sinon, on envoie un message simple
                     const texte = args.slice(2).join(' ');
                     await cible.send({ content: texte || null, files: attachments });
                     await message.reply("✅ Message envoyé");
@@ -101,22 +97,19 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        // 3. Envoi de la réponse automatique
+        // 3. Envoi de la réponse automatique (DYNAMIQUE)
         try {
-            const messageAffiche = `**AKH TV — TON STREAMING ICI** ⚡
+            // On récupère le dernier message du salon de config
+            const configChannel = await client.channels.fetch(ID_SALON_CONFIG);
+            const messages = await configChannel.messages.fetch({ limit: 1 });
+            const dernierMessage = messages.first();
 
-🌐 **Site Officiel :** https://akhtv.online
-
-📖 **Besoin d'aide ?**
-Retrouve le **Tuto** ici 👉 <#1482820441478529186>
-
-📢 **Rejoindre la communauté :**
-* **Discord (Secours) :** https://discord.gg/myCjNzea8U
-* **Twitter (News) :** https://x.com/abdul_37300?s=21
-
-🏁 *Ne rate aucun match !*`;
-
-            await message.author.send(messageAffiche);
+            if (dernierMessage && dernierMessage.content) {
+                await message.author.send(dernierMessage.content);
+            } else {
+                // Message de secours si le salon est vide
+                await message.author.send("Bienvenue ! Le service est en cours de mise à jour. Merci de patienter.");
+            }
         } catch (e) {
             console.log(`Impossible de répondre à ${message.author.tag} (DMs fermés)`);
         }
