@@ -1,10 +1,20 @@
-const { Client, GatewayIntentBits, Partials, ActivityType } = require('discord.js');
+const { 
+    Client, 
+    GatewayIntentBits, 
+    Partials, 
+    ActivityType, 
+    ActionRowBuilder, 
+    ButtonBuilder, 
+    ButtonStyle, 
+    ChannelType, 
+    PermissionsBitField 
+} = require('discord.js');
 const express = require('express');
 
 // --- SERVEUR WEB (Pour Render / Koyeb) ---
 const app = express();
 const port = process.env.PORT || 10000;
-app.get('/', (req, res) => res.send('AKH Surveillance + Anti-Spam Actif'));
+app.get('/', (req, res) => res.send('AKH Surveillance + Tickets Actifs'));
 app.listen(port, () => console.log(`Serveur Web sur le port ${port}`));
 
 // --- CONFIGURATION ---
@@ -25,11 +35,11 @@ const client = new Client({
 
 // --- ÉTAT DU BOT ---
 client.once('ready', () => {
-    client.user.setActivity('DM pour le lien', { type: ActivityType.Watching });
+    client.user.setActivity('DM pour le lien | Tickets', { type: ActivityType.Watching });
     console.log(`✅ CONNECTÉ : ${client.user.tag} est prêt !`);
 });
 
-// --- GESTION DES MESSAGES ---
+// --- GESTION DES MESSAGES (Commandes et DMs) ---
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -81,6 +91,31 @@ client.on('messageCreate', async (message) => {
             }
             return;
         }
+
+        // --- NOUVEAU : COMMANDE CRÉATION DE PANEL TICKET ---
+        // Exemple : !setup-ticket 123456789012345678 Clique ici pour acheter
+        if (message.content.startsWith('!setup-ticket')) {
+            const args = message.content.split(' ');
+            const categoryId = args[1];
+            const textePanel = args.slice(2).join(' ') || "📩 **Besoin d'aide ?**\nClique sur le bouton ci-dessous pour ouvrir un ticket.";
+
+            if (!categoryId || isNaN(categoryId)) {
+                return message.reply("❌ Précise l'ID de la catégorie. Exemple : `!setup-ticket 1234567890 Ton texte ici`");
+            }
+
+            const row = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        // On cache l'ID de la catégorie directement dans le bouton !
+                        .setCustomId(`create_ticket_${categoryId}`)
+                        .setLabel('📩 Créer un ticket')
+                        .setStyle(ButtonStyle.Success)
+                );
+
+            await message.channel.send({ content: textePanel, components: [row] });
+            await message.delete(); // Supprime ta commande pour faire propre
+            return;
+        }
     }
 
     // --- GESTION DES DMs CLIENTS ---
@@ -99,7 +134,6 @@ client.on('messageCreate', async (message) => {
 
         // 3. Envoi de la réponse automatique (DYNAMIQUE)
         try {
-            // On récupère le dernier message du salon de config
             const configChannel = await client.channels.fetch(ID_SALON_CONFIG);
             const messages = await configChannel.messages.fetch({ limit: 1 });
             const dernierMessage = messages.first();
@@ -107,12 +141,70 @@ client.on('messageCreate', async (message) => {
             if (dernierMessage && dernierMessage.content) {
                 await message.author.send(dernierMessage.content);
             } else {
-                // Message de secours si le salon est vide
                 await message.author.send("Bienvenue ! Le service est en cours de mise à jour. Merci de patienter.");
             }
         } catch (e) {
             console.log(`Impossible de répondre à ${message.author.tag} (DMs fermés)`);
         }
+    }
+});
+
+// --- ÉCOUTE DES BOUTONS (POUR LES TICKETS) ---
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isButton()) return;
+
+    // 1. Si on clique sur "Créer un ticket"
+    if (interaction.customId.startsWith('create_ticket_')) {
+        const categoryId = interaction.customId.split('_')[2];
+
+        await interaction.reply({ content: "⏳ Création de ton ticket en cours...", ephemeral: true });
+
+        try {
+            const ticketChannel = await interaction.guild.channels.create({
+                name: `ticket-${interaction.user.username}`,
+                type: ChannelType.GuildText,
+                parent: categoryId,
+                permissionOverwrites: [
+                    {
+                        id: interaction.guild.id, // Bloque la vue pour tout le monde
+                        deny: [PermissionsBitField.Flags.ViewChannel],
+                    },
+                    {
+                        id: interaction.user.id, // Autorise uniquement le viewer
+                        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory],
+                    },
+                    {
+                        id: client.user.id, // Autorise le bot
+                        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory],
+                    }
+                ],
+            });
+
+            const closeRow = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('close_ticket')
+                        .setLabel('🔒 Fermer le ticket')
+                        .setStyle(ButtonStyle.Danger)
+                );
+
+            await ticketChannel.send({
+                content: `Bienvenue dans ton ticket <@${interaction.user.id}> ! Explique-nous ta demande en détail, un admin va te répondre très vite.`,
+                components: [closeRow]
+            });
+
+            await interaction.editReply(`✅ Ton ticket a été créé avec succès : <#${ticketChannel.id}>`);
+        } catch (e) {
+            console.error(e);
+            await interaction.editReply("❌ Erreur. Vérifie que l'ID de la catégorie est bon et que j'ai les permissions d'administrateur.");
+        }
+    }
+
+    // 2. Si on clique sur "Fermer le ticket"
+    if (interaction.customId === 'close_ticket') {
+        // Seuls les admins ou le créateur du ticket devraient pouvoir fermer (là tout le monde peut s'ils ont accès au salon)
+        await interaction.reply("🔒 Le ticket va être fermé et supprimé dans 5 secondes...");
+        setTimeout(() => interaction.channel.delete().catch(() => {}), 5000);
     }
 });
 
