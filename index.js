@@ -15,11 +15,14 @@ const {
 } = require('discord.js');
 const express = require('express');
 
-// --- SERVEUR WEB (Pour Render / Koyeb) ---
+// --- SERVEUR WEB ANTI-SOMMEIL (Pour Render / Koyeb) ---
 const app = express();
-const port = process.env.PORT || 10000;
-app.get('/', (req, res) => res.send('AKH Surveillance + Tickets + Slash Commands Actifs'));
-app.listen(port, () => console.log(`Serveur Web sur le port ${port}`));
+// Koyeb adore le port 8000, on le force ici.
+const port = process.env.PORT || 8000; 
+app.get('/', (req, res) => res.status(200).send('AKH Surveillance + Tickets + Slash Commands Actifs 👑'));
+// Le "0.0.0.0" est OBLIGATOIRE sur Koyeb pour autoriser les requêtes externes (UptimeRobot)
+app.listen(port, "0.0.0.0", () => console.log(`Serveur Web sur le port ${port}`));
+// ------------------------------------------------------
 
 // --- CONFIGURATION ---
 const MON_ID = "744871541715632138"; // Ton ID
