@@ -145,6 +145,8 @@ client.on('interactionCreate', async interaction => {
 
         // COMMANDE : /setup-ticket
         if (interaction.commandName === 'setup-ticket') {
+            await interaction.deferReply({ ephemeral: true }); // Accuse réception tout de suite (évite le timeout de 3s)
+
             const categoryId = interaction.options.getString('categorie_id');
             const textePanel = interaction.options.getString('texte') || "📩 **Besoin d'aide ?**\nClique sur le bouton ci-dessous pour ouvrir un ticket.";
 
@@ -156,8 +158,13 @@ client.on('interactionCreate', async interaction => {
                         .setStyle(ButtonStyle.Success)
                 );
 
-            await interaction.channel.send({ content: textePanel, components: [row] });
-            return interaction.reply({ content: "✅ Panel de ticket créé avec succès ! (Ce message n'est visible que par toi)", ephemeral: true });
+            try {
+                await interaction.channel.send({ content: textePanel, components: [row] });
+                return interaction.editReply({ content: "✅ Panel de ticket créé avec succès ! (Ce message n'est visible que par toi)" });
+            } catch (e) {
+                console.error(e);
+                return interaction.editReply({ content: "❌ Erreur lors de la création du panel. Vérifie mes permissions dans ce salon." });
+            }
         }
     }
 
