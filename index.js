@@ -277,6 +277,15 @@ client.on('messageCreate', async (message) => {
     }
 });
 
+// --- GESTION DES ERREURS DE CONNEXION (évite que le bot crash sur une erreur réseau temporaire) ---
+client.on('error', (error) => {
+    console.error('⚠️ Erreur WebSocket (ignorée, le bot continue) :', error.message);
+});
+
+client.on('shardError', (error) => {
+    console.error('⚠️ Erreur de shard (ignorée) :', error.message);
+});
+
 // --- LANCEMENT ---
 client.login(process.env.TOKEN).catch(err => {
     console.error("❌ Erreur de connexion Discord :", err.message);
