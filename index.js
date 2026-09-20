@@ -27,7 +27,7 @@ app.listen(port, "0.0.0.0", () => console.log(`Serveur Web sur le port ${port}`)
 // --- CONFIGURATION ---
 const MON_ID = "744871541715632138"; // Ton ID
 const ID_ROLE_ADMIN = "1491543740211400906"; // Le rôle de tes modérateurs
-const ID_SALON_CONFIG = "1486834918054035646"; // Salon du message auto
+const ID_SALON_CONFIG = "1551255511171596419"; // Salon du message auto
 const ID_SALON_LOG_TICKET = "1491546290520195072"; // 🔴 TON SALON DE LOGS TICKETS
 
 let blacklist = new Set();
